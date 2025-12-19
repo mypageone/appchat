@@ -2,126 +2,191 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Kita</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Yanoshi Chat Pro v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f2f5; }
-        .chat-bubble-me { border-radius: 20px 20px 4px 20px; }
-        .chat-bubble-them { border-radius: 20px 20px 20px 4px; }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); }
-        .loader { border-top-color: #4f46e5; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            /* Mengatasi masalah 100vh di mobile */
+            --app-height: 100vh;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f4f7fb;
+            height: var(--app-height);
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Tinggi dinamis untuk mobile browser */
+        .h-app { height: 100dvh; }
+
+        .chat-bubble-me { border-radius: 18px 18px 2px 18px; }
+        .chat-bubble-them { border-radius: 18px 18px 18px 2px; }
+        
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+        
+        /* Animasi halusan */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Sembunyikan scrollbar tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .bg-pattern {
+            background-color: #e5e7eb;
+            background-image: url("https://www.transparenttextures.com/patterns/cubes.png");
+        }
     </style>
 </head>
-<body class="h-screen overflow-hidden">
+<body class="h-app flex flex-col items-center justify-center">
 
-<div id="app" class="h-full flex flex-col max-w-[1400px] mx-auto shadow-2xl">
+<div id="app" class="w-full max-w-[1400px] h-full flex flex-col bg-white shadow-2xl overflow-hidden relative">
     
-    <div id="auth-view" class="flex-1 flex items-center justify-center p-6">
-        <div class="bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-md">
+    <div id="auth-view" class="absolute inset-0 z-[100] bg-slate-50 flex items-center justify-center p-6">
+        <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl w-full max-w-md border border-slate-100">
             <div class="flex flex-col items-center mb-8">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg rotate-3">
-                    <i data-lucide="message-square" class="text-white w-8 h-8"></i>
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-indigo-200 shadow-2xl rotate-3">
+                    <i data-lucide="message-circle" class="text-white w-8 h-8"></i>
                 </div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">J & H</h1>
+                <h1 class="text-3xl font-extrabold text-slate-800">Yanoshi Chat</h1>
+                <p class="text-slate-400 text-sm mt-1">Sistem Pesan Eksklusif</p>
             </div>
             
             <div id="login-form" class="space-y-4">
-                <input id="l-user" type="text" placeholder="Username" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none">
-                <input id="l-pass" type="password" placeholder="Password" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none">
-                <button onclick="login()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200">Login</button>
-                <button onclick="toggleAuth(true)" class="w-full text-indigo-600 font-semibold text-sm">Belum punya akun? Daftar</button>
+                <input id="l-user" type="text" placeholder="Username" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none transition-all">
+                <input id="l-pass" type="password" placeholder="Password" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none transition-all">
+                <button onclick="login()" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">Login</button>
+                <p class="text-center text-sm text-slate-500">Belum punya akun? <button onclick="toggleAuth(true)" class="text-indigo-600 font-bold">Daftar</button></p>
             </div>
 
             <div id="reg-form" class="hidden space-y-4">
-                <input id="r-name" type="text" placeholder="Nama Lengkap" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-emerald-500 outline-none">
-                <input id="r-user" type="text" placeholder="Username" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-emerald-500 outline-none">
-                <input id="r-pass" type="password" placeholder="Password" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-emerald-500 outline-none">
+                <input id="r-name" type="text" placeholder="Nama Lengkap" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 ring-emerald-500 outline-none">
+                <input id="r-user" type="text" placeholder="Username" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 ring-emerald-500 outline-none">
+                <input id="r-pass" type="password" placeholder="Password" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 ring-emerald-500 outline-none">
                 <button onclick="register()" class="w-full bg-emerald-600 text-white p-4 rounded-2xl font-bold hover:bg-emerald-700 shadow-lg">Buat Akun</button>
-                <button onclick="toggleAuth(false)" class="w-full text-emerald-600 font-semibold text-sm">Kembali ke Login</button>
+                <p class="text-center text-sm text-slate-500"><button onclick="toggleAuth(false)" class="text-indigo-600 font-bold">Kembali ke Login</button></p>
             </div>
         </div>
     </div>
 
-    <div id="main-view" class="hidden flex h-full bg-white overflow-hidden">
-        <aside id="sidebar" class="w-full md:w-[350px] border-r border-slate-100 flex flex-col bg-slate-50/50">
-            <div class="p-6 flex justify-between items-center bg-white border-b">
+    <div id="main-view" class="hidden flex flex-1 h-full w-full overflow-hidden">
+        <aside id="sidebar" class="w-full md:w-[380px] border-r border-slate-100 flex flex-col bg-white z-40">
+            <div class="p-5 flex justify-between items-center border-b">
                 <div class="flex items-center gap-3">
-                    <div id="my-avatar" class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold"></div>
-                    <span id="my-name" class="font-bold text-slate-700"></span>
+                    <div id="my-avatar" class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-lg"></div>
+                    <div>
+                        <h2 id="my-name" class="font-bold text-slate-800 leading-none"></h2>
+                        <span class="text-[10px] font-bold text-green-500 uppercase tracking-widest">Online</span>
+                    </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="openSettings()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-500"><i data-lucide="settings"></i></button>
-                    <button onclick="logout()" class="p-2 hover:bg-red-50 rounded-lg text-red-500"><i data-lucide="log-out"></i></button>
+                <div class="flex gap-1">
+                    <button onclick="openSettings()" class="p-2.5 hover:bg-slate-50 rounded-xl text-slate-500"><i data-lucide="settings" class="w-5 h-5"></i></button>
+                    <button onclick="logout()" class="p-2.5 hover:bg-red-50 rounded-xl text-red-500"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
-            <div class="p-4"><input type="text" placeholder="Cari teman..." class="w-full p-3 bg-white rounded-xl border-none shadow-sm text-sm outline-none ring-1 ring-slate-100"></div>
-            <div id="users-container" class="flex-1 overflow-y-auto px-2"></div>
+            
+            <div class="p-4 bg-slate-50/50">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Cari percakapan..." class="w-full pl-11 pr-4 py-3 bg-white rounded-2xl border-none shadow-sm text-sm outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500">
+                </div>
+            </div>
+
+            <div id="users-container" class="flex-1 overflow-y-auto no-scrollbar">
+                </div>
         </aside>
 
-        <main id="chat-room" class="hidden flex-1 flex flex-col bg-white">
-            <header class="p-4 border-b flex items-center justify-between glass sticky top-0 z-20">
+        <main id="chat-room" class="hidden absolute md:relative inset-0 w-full h-full flex flex-col bg-white z-50">
+            <header class="h-[70px] px-4 border-b flex items-center justify-between glass z-10 shrink-0">
                 <div class="flex items-center gap-3">
-                    <button onclick="closeChat()" class="md:hidden"><i data-lucide="chevron-left"></i></button>
-                    <div id="target-avatar" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500"></div>
+                    <button onclick="closeChat()" class="p-2 -ml-2 md:hidden text-slate-600"><i data-lucide="chevron-left"></i></button>
+                    <div id="target-avatar" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center font-bold text-indigo-600"></div>
                     <div>
-                        <h3 id="chat-target-name" class="font-bold text-slate-800 leading-none"></h3>
-                        <span class="text-[10px] text-green-500 font-bold uppercase tracking-widest">Active Now</span>
+                        <h3 id="chat-target-name" class="font-bold text-slate-800 text-sm md:text-base leading-none"></h3>
+                        <p class="text-[10px] text-slate-400 mt-1">Terakhir dilihat: Baru saja</p>
                     </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="phone" class="w-5 h-5"></i></button>
+                    <button class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="video" class="w-5 h-5"></i></button>
                 </div>
             </header>
 
-            <div id="messages" class="flex-1 overflow-y-auto p-6 space-y-6 bg-[#f8f9fa]"></div>
+            <div id="messages" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 bg-pattern no-scrollbar">
+                </div>
 
-            <footer class="p-4 bg-white border-t">
-                <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl ring-1 ring-slate-200">
-                    <button onclick="document.getElementById('file-in').click()" class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="plus-circle"></i></button>
-                    <button onclick="openCam()" class="p-2 text-slate-400 hover:text-indigo-600"><i data-lucide="camera"></i></button>
-                    <input type="text" id="msg-in" placeholder="Tulis pesan..." class="flex-1 bg-transparent outline-none p-2 text-sm">
-                    <button onclick="send()" class="bg-indigo-600 text-white p-3 rounded-xl shadow-lg hover:scale-105 transition"><i data-lucide="send"></i></button>
+            <footer class="p-3 md:p-4 bg-white border-t shrink-0">
+                <div class="max-w-4xl mx-auto flex items-end gap-2 bg-slate-50 p-2 rounded-[1.5rem] ring-1 ring-slate-200 focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
+                    <button onclick="document.getElementById('file-in').click()" class="p-2 text-slate-400 hover:text-indigo-600 mb-0.5"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                    <button onclick="openCam()" class="p-2 text-slate-400 hover:text-indigo-600 mb-0.5"><i data-lucide="camera" class="w-5 h-5"></i></button>
+                    
+                    <textarea id="msg-in" rows="1" placeholder="Tulis pesan..." class="flex-1 bg-transparent border-none outline-none py-2 px-1 text-sm resize-none max-h-32 overflow-y-auto"></textarea>
+                    
+                    <button onclick="showEmoji()" class="p-2 text-slate-400 hover:text-orange-400 mb-0.5">😊</button>
+                    <button onclick="send()" class="bg-indigo-600 text-white p-3 rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-all mb-0.5">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </button>
                 </div>
                 <input type="file" id="file-in" class="hidden" onchange="uploadFile(event)">
+                <div class="h-[env(safe-area-inset-bottom)] md:hidden"></div>
             </footer>
         </main>
     </div>
 </div>
 
-<div id="modal-settings" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl">
-        <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i data-lucide="user-cog"></i> Edit Profil</h2>
+<div id="modal-settings" class="fixed inset-0 bg-slate-900/60 z-[200] hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl fade-in">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><i data-lucide="user-cog"></i></div>
+            <h2 class="text-xl font-bold text-slate-800">Pengaturan Profil</h2>
+        </div>
         <div class="space-y-4">
-            <div><label class="text-xs font-bold text-slate-400 uppercase">Nama Baru</label>
-            <input id="set-name" type="text" class="w-full mt-1 p-3 bg-slate-100 rounded-xl outline-none"></div>
-            <div><label class="text-xs font-bold text-slate-400 uppercase">Password Baru</label>
-            <input id="set-pass" type="password" class="w-full mt-1 p-3 bg-slate-100 rounded-xl outline-none"></div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nama Tampilan</label>
+                <input id="set-name" type="text" class="w-full mt-1 p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 ring-indigo-500">
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Password Baru</label>
+                <input id="set-pass" type="password" placeholder="Isi jika ingin ganti" class="w-full mt-1 p-4 bg-slate-50 rounded-2xl outline-none focus:ring-2 ring-indigo-500">
+            </div>
             <div class="flex gap-3 pt-4">
-                <button onclick="closeSettings()" class="flex-1 p-3 text-slate-500 font-bold">Batal</button>
-                <button onclick="saveSettings()" class="flex-1 bg-indigo-600 text-white rounded-xl font-bold shadow-lg">Simpan</button>
+                <button onclick="closeSettings()" class="flex-1 p-4 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl">Batal</button>
+                <button onclick="saveSettings()" class="flex-1 bg-indigo-600 text-white p-4 rounded-2xl font-bold shadow-lg">Simpan</button>
             </div>
         </div>
     </div>
 </div>
 
-<div id="cam-view" class="fixed inset-0 bg-black z-[200] hidden flex flex-col items-center justify-center">
-    <video id="video" class="w-full h-3/4 object-cover" autoplay playsinline></video>
-    <div class="h-1/4 flex items-center gap-12">
-        <button onclick="closeCam()" class="text-white p-4"><i data-lucide="x-circle"></i></button>
-        <button onclick="takeSnap()" class="w-20 h-20 bg-white rounded-full border-8 border-slate-500 shadow-white/20 shadow-2xl"></button>
+<div id="cam-view" class="fixed inset-0 bg-black z-[300] hidden flex flex-col items-center justify-center">
+    <video id="video" class="w-full h-full object-cover" autoplay playsinline></video>
+    <div class="absolute bottom-10 inset-x-0 flex items-center justify-center gap-12">
+        <button onclick="closeCam()" class="w-12 h-12 flex items-center justify-center bg-white/10 text-white rounded-full backdrop-blur-md"><i data-lucide="x"></i></button>
+        <button onclick="takeSnap()" class="w-20 h-20 bg-white rounded-full border-[6px] border-white/30 shadow-2xl shadow-white/20 active:scale-90 transition"></button>
         <div class="w-12"></div>
     </div>
     <canvas id="canvas" class="hidden"></canvas>
 </div>
 
 <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyM3eRucY22efY7MvvFIPpSqbVSJ4pao0cqUmgXEejcpQu7KqDHJ2vDboD-CBWkd4FqHQ/exec"; // GANTI DENGAN URL GAS ANDA
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyM3eRucY22efY7MvvFIPpSqbVSJ4pao0cqUmgXEejcpQu7KqDHJ2vDboD-CBWkd4FqHQ/exec";
     let me = JSON.parse(localStorage.getItem('chat_user')) || null;
     let partner = null;
     let poll = null;
 
-    // Logic Auth
+    // Fix Height Mobile
+    const updateAppHeight = () => {
+        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', updateAppHeight);
+    updateAppHeight();
+
+    // Auth Logic
     function toggleAuth(reg) {
         document.getElementById('login-form').classList.toggle('hidden', reg);
         document.getElementById('reg-form').classList.toggle('hidden', !reg);
@@ -130,13 +195,17 @@
     async function login() {
         const u = document.getElementById('l-user').value;
         const p = document.getElementById('l-pass').value;
-        const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({action:'login', username:u, password:p}) });
-        const text = await res.text();
-        if(text !== "Fail") {
-            me = JSON.parse(text);
-            localStorage.setItem('chat_user', text);
-            startApp();
-        } else alert("Username/Password salah!");
+        if(!u || !p) return alert("Mohon isi semua kolom");
+        
+        try {
+            const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({action:'login', username:u, password:p}) });
+            const text = await res.text();
+            if(text !== "Fail") {
+                me = JSON.parse(text);
+                localStorage.setItem('chat_user', text);
+                startApp();
+            } else alert("Username atau Password salah!");
+        } catch(e) { alert("Koneksi gagal"); }
     }
 
     async function register() {
@@ -146,12 +215,13 @@
             username: document.getElementById('r-user').value,
             password: document.getElementById('r-pass').value
         };
+        if(!data.name || !data.username || !data.password) return alert("Isi lengkap data");
         await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(data) });
-        alert("Pendaftaran Berhasil!");
+        alert("Pendaftaran Berhasil! Silahkan Login.");
         toggleAuth(false);
     }
 
-    // Logic Main App
+    // App Logic
     function startApp() {
         if(!me) return;
         document.getElementById('auth-view').classList.add('hidden');
@@ -167,9 +237,15 @@
         const users = await res.json();
         const container = document.getElementById('users-container');
         container.innerHTML = users.filter(u => u.username !== me.username).map(u => `
-            <div onclick="openChat('${u.username}', '${u.name}')" class="p-4 flex items-center gap-4 hover:bg-white hover:shadow-md cursor-pointer rounded-2xl transition-all m-2">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold shadow-md">${u.name[0]}</div>
-                <div class="flex-1 border-b border-slate-100 pb-2"><h4 class="font-bold text-slate-800">${u.name}</h4><p class="text-xs text-slate-400">Klik untuk mulai chat</p></div>
+            <div onclick="openChat('${u.username}', '${u.name}')" class="group mx-3 my-1 p-4 flex items-center gap-4 hover:bg-indigo-50 cursor-pointer rounded-2xl transition-all border-b border-slate-50 last:border-none">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-indigo-600 flex items-center justify-center font-bold shadow-sm group-hover:bg-indigo-600 group-hover:text-white transition-all text-lg">${u.name[0]}</div>
+                <div class="flex-1 overflow-hidden">
+                    <div class="flex justify-between items-baseline">
+                        <h4 class="font-bold text-slate-800 text-sm truncate">${u.name}</h4>
+                        <span class="text-[9px] text-slate-400">Baru</span>
+                    </div>
+                    <p class="text-xs text-slate-400 truncate mt-1">Klik untuk mengirim pesan...</p>
+                </div>
             </div>
         `).join('');
     }
@@ -177,13 +253,13 @@
     function openChat(username, name) {
         partner = username;
         document.getElementById('chat-target-name').innerText = name;
-        document.getElementById('target-avatar').innerText = name[0];
+        document.getElementById('target-avatar').innerText = name[0].toUpperCase();
         document.getElementById('chat-room').classList.remove('hidden');
-        if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('hidden');
+        document.getElementById('messages').innerHTML = '<div class="flex justify-center py-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>';
         
         clearInterval(poll);
         fetchMsgs();
-        poll = setInterval(fetchMsgs, 3000);
+        poll = setInterval(fetchMsgs, 4000);
         markRead();
     }
 
@@ -196,29 +272,26 @@
         box.innerHTML = data.map(m => {
             const isMe = m.sender === me.username;
             const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            // Logika Centang Dua
-            // Centang 1 gray: Terkirim
-            // Centang 2 blue: Dibaca
-            const checkmarks = isMe ? (m.isRead ? 
-                '<i data-lucide="check-check" class="w-3 h-3 text-blue-400"></i>' : 
-                '<i data-lucide="check" class="w-3 h-3 text-slate-400"></i>') : '';
+            const checks = isMe ? (m.isRead ? 
+                '<i data-lucide="check-check" class="w-3.5 h-3.5 text-blue-400 ml-1"></i>' : 
+                '<i data-lucide="check" class="w-3.5 h-3.5 text-white/50 ml-1"></i>') : '';
 
-            let content = `<p class="text-sm leading-relaxed">${m.msg}</p>`;
+            let content = `<p class="text-[13px] md:text-sm leading-relaxed">${m.msg}</p>`;
             if(m.file) {
-                if(m.type.includes('image')) content += `<img src="${m.file}" class="mt-2 rounded-xl max-h-60 w-auto shadow-sm">`;
-                else if(m.type.includes('video')) content += `<video controls src="${m.file}" class="mt-2 rounded-xl max-h-60"></video>`;
-                else content += `<a href="${m.file}" target="_blank" class="mt-2 block p-2 bg-black/5 rounded-lg text-xs font-bold flex items-center gap-2"><i data-lucide="file"></i> DOWNLOAD FILE</a>`;
+                if(m.type.includes('image')) content += `<img src="${m.file}" class="mt-2 rounded-xl max-h-72 w-full object-cover shadow-sm">`;
+                else if(m.type.includes('video')) content += `<video controls src="${m.file}" class="mt-2 rounded-xl max-h-72 w-full"></video>`;
+                else content += `<a href="${m.file}" target="_blank" class="mt-2 block p-3 bg-black/10 rounded-xl text-[10px] font-bold flex items-center gap-2"><i data-lucide="download" class="w-3 h-3"></i> DOWNLOAD DOKUMEN</a>`;
             }
 
             return `
-                <div class="flex ${isMe ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2">
-                    <div class="${isMe ? 'bg-indigo-600 text-white chat-bubble-me' : 'bg-white text-slate-800 chat-bubble-them shadow-sm border border-slate-100'} p-4 max-w-[75%] relative">
-                        <div class="flex justify-between items-center gap-4 mb-1 opacity-60 text-[9px] font-bold uppercase tracking-tighter">
-                            <span>${isMe ? 'Anda' : m.sender}</span>
-                            <span class="flex items-center gap-1">${time} ${checkmarks}</span>
-                        </div>
+                <div class="flex ${isMe ? 'justify-end' : 'justify-start'} fade-in">
+                    <div class="${isMe ? 'bg-indigo-600 text-white chat-bubble-me' : 'bg-white text-slate-800 chat-bubble-them shadow-sm border border-slate-100'} p-3.5 max-w-[85%] md:max-w-[70%] relative">
+                        ${!isMe ? `<span class="block text-[9px] font-bold text-indigo-500 mb-1 uppercase tracking-tighter">${m.sender}</span>` : ''}
                         ${content}
+                        <div class="flex justify-end items-center mt-1 text-[9px] opacity-70">
+                            <span>${time}</span>
+                            ${checks}
+                        </div>
                     </div>
                 </div>
             `;
@@ -240,16 +313,25 @@
             fileType: type
         };
         inp.value = "";
+        inp.style.height = 'auto'; // Reset height
         await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(body) });
         fetchMsgs();
     }
 
-    // ENTER KEY FOR DESKTOP
-    document.getElementById('msg-in').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') send();
+    // Auto-resize textarea
+    document.getElementById('msg-in').addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
     });
 
-    // Mark As Read
+    // Enter to Send
+    document.getElementById('msg-in').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey && window.innerWidth > 768) {
+            e.preventDefault();
+            send();
+        }
+    });
+
     async function markRead() {
         if(!partner) return;
         fetch(GAS_URL, { method: 'POST', body: JSON.stringify({action:'markRead', me: me.username, from: partner}) });
@@ -267,16 +349,15 @@
         const res = await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({
             action: 'updateProfile', username: me.username, newName: newN, newPassword: newP
         })});
-        const updated = await res.json();
-        me = updated;
+        me = await res.json();
         localStorage.setItem('chat_user', JSON.stringify(me));
         alert("Profil diperbarui!");
         location.reload();
     }
 
-    // Camera & Media
+    // Media Handling
     async function openCam() {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
         document.getElementById('video').srcObject = stream;
         document.getElementById('cam-view').classList.remove('hidden');
     }
@@ -288,7 +369,7 @@
         const v = document.getElementById('video'), c = document.getElementById('canvas');
         c.width = v.videoWidth; c.height = v.videoHeight;
         c.getContext('2d').drawImage(v, 0,0);
-        send(c.toDataURL('image/jpeg'), 'image/jpeg');
+        send(c.toDataURL('image/jpeg', 0.7), 'image/jpeg');
         closeCam();
     }
     function uploadFile(e) {
@@ -297,11 +378,17 @@
         reader.onload = () => send(reader.result, file.type);
         reader.readAsDataURL(file);
     }
+    function showEmoji() {
+        const emo = ["😊","😂","🔥","🙏","👍","✨","🥰","😭","🚀"];
+        const rand = emo[Math.floor(Math.random() * emo.length)];
+        const input = document.getElementById('msg-in');
+        input.value += rand;
+        input.focus();
+    }
 
     function logout() { localStorage.clear(); location.reload(); }
     function closeChat() {
         document.getElementById('chat-room').classList.add('hidden');
-        document.getElementById('sidebar').classList.remove('hidden');
         partner = null;
         clearInterval(poll);
     }
