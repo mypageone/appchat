@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Kita Aja</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .chat-container { height: calc(100vh - 160px); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+<div id="app" class="max-w-4xl mx-auto h-screen flex flex-col">
+    <div id="auth-view" class="flex-1 flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-100">
+            <h1 class="text-3xl font-bold mb-6 text-center text-indigo-600">J & H</h1>
+            <div id="login-form">
+                <input id="login-user" type="text" placeholder="Username" class="w-full mb-3 p-3 border rounded-xl outline-none focus:ring-2 ring-indigo-400">
+                <input id="login-pass" type="password" placeholder="Password" class="w-full mb-4 p-3 border rounded-xl outline-none focus:ring-2 ring-indigo-400">
+                <button onclick="login()" class="w-full bg-indigo-600 text-white p-3 rounded-xl font-semibold hover:bg-indigo-700 transition">Login</button>
+                <p class="mt-4 text-center text-sm">Belum punya akun? <a href="#" onclick="toggleAuth()" class="text-indigo-600">Buat Akun</a></p>
+            </div>
+            <div id="register-form" class="hidden">
+                <input id="reg-name" type="text" placeholder="Nama Lengkap" class="w-full mb-3 p-3 border rounded-xl outline-none focus:ring-2 ring-indigo-400">
+                <input id="reg-user" type="text" placeholder="Username" class="w-full mb-3 p-3 border rounded-xl outline-none focus:ring-2 ring-indigo-400">
+                <input id="reg-pass" type="password" placeholder="Password" class="w-full mb-4 p-3 border rounded-xl outline-none focus:ring-2 ring-indigo-400">
+                <button onclick="register()" class="w-full bg-emerald-600 text-white p-3 rounded-xl font-semibold hover:bg-emerald-700 transition">Daftar</button>
+                <p class="mt-4 text-center text-sm">Sudah ada akun? <a href="#" onclick="toggleAuth()" class="text-indigo-600">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-view" class="hidden flex flex-col h-full">
+        <header class="p-4 glass border-b flex justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-bold" id="user-avatar">Y</div>
+                <div>
+                    <h2 class="font-bold leading-none" id="display-name">Loading...</h2>
+                    <span class="text-xs text-green-500 font-medium">Online</span>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="showSettings()" class="text-slate-500 hover:text-indigo-600"><i data-lucide="settings"></i></button>
+                <button onclick="logout()" class="text-slate-500 hover:text-red-600"><i data-lucide="log-out"></i></button>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <aside id="user-list" class="w-full md:w-1/3 border-r bg-white overflow-y-auto">
+                <div class="p-4 font-semibold text-slate-400 uppercase text-xs tracking-widest">Kontak</div>
+                <div id="users-container"></div>
+            </aside>
+
+            <main id="chat-room" class="hidden w-full md:w-2/3 flex flex-col bg-white">
+                <div class="p-4 border-b flex items-center gap-3">
+                    <button onclick="backToList()" class="md:hidden"><i data-lucide="arrow-left"></i></button>
+                    <span class="font-bold" id="chat-target-name">User</span>
+                </div>
+                <div id="messages" class="flex-1 overflow-y-auto p-4 space-y-4 chat-container bg-slate-50/50"></div>
+                
+                <footer class="p-4 bg-white border-t">
+                    <div class="flex items-center gap-2 bg-slate-100 p-2 rounded-2xl">
+                        <button onclick="triggerFile()" class="p-2 text-slate-500 hover:text-indigo-600"><i data-lucide="paperclip"></i></button>
+                        <button onclick="openCamera()" class="p-2 text-slate-500 hover:text-indigo-600"><i data-lucide="camera"></i></button>
+                        <input type="text" id="msg-input" placeholder="Ketik pesan..." class="flex-1 bg-transparent outline-none p-2">
+                        <button onclick="showEmoji()" class="p-2 text-slate-500 hover:text-orange-500">😊</button>
+                        <button onclick="sendMsg()" class="bg-indigo-600 text-white p-2 rounded-xl shadow-lg hover:rotate-12 transition transform"><i data-lucide="send"></i></button>
+                    </div>
+                    <input type="file" id="file-input" class="hidden" onchange="handleFile(event)">
+                </footer>
+            </main>
+        </div>
+    </div>
+</div>
+
+<div id="camera-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col items-center justify-center">
+    <video id="video" class="w-full max-w-lg" autoplay></video>
+    <div class="mt-6 flex gap-8">
+        <button onclick="capturePhoto()" class="w-16 h-16 bg-white rounded-full border-4 border-slate-300"></button>
+        <button onclick="closeCamera()" class="text-white mt-4 underline">Tutup</button>
+    </div>
+    <canvas id="canvas" class="hidden"></canvas>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2im7h-k48polPptPepqnUABILL8UoPoHdPf8jrlUFNVEDK66xpDlKKxUPwcpK28TMkA/exec"; // GANTI DENGAN URL GAS ANDA
+    let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+    let activeChat = null;
+    let pollInterval = null;
+
+    // UI Logic
+    function toggleAuth() {
+        document.getElementById('login-form').classList.toggle('hidden');
+        document.getElementById('register-form').classList.toggle('hidden');
+    }
+
+    // Backend Logic
+    async function login() {
+        const u = document.getElementById('login-user').value;
+        const p = document.getElementById('login-pass').value;
+        const resp = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'login', username: u, password: p })
+        });
+        const resText = await resp.text();
+        if(resText !== "Fail") {
+            currentUser = JSON.parse(resText);
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            initApp();
+        } else { alert("Login Gagal!"); }
+    }
+
+    async function register() {
+        const data = {
+            action: 'register',
+            name: document.getElementById('reg-name').value,
+            username: document.getElementById('reg-user').value,
+            password: document.getElementById('reg-pass').value
+        };
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+        alert("Berhasil Daftar!");
+        toggleAuth();
+    }
+
+    function initApp() {
+        if(!currentUser) return;
+        document.getElementById('auth-view').classList.add('hidden');
+        document.getElementById('main-view').classList.remove('hidden');
+        document.getElementById('display-name').innerText = currentUser.name;
+        document.getElementById('user-avatar').innerText = currentUser.name[0];
+        loadUsers();
+        lucide.createIcons();
+    }
+
+    async function loadUsers() {
+        const resp = await fetch(SCRIPT_URL + "?action=getUsers");
+        const users = await resp.json();
+        const container = document.getElementById('users-container');
+        container.innerHTML = users.filter(u => u.username !== currentUser.username).map(u => `
+            <div onclick="startChat('${u.username}', '${u.name}')" class="p-4 flex items-center gap-3 hover:bg-slate-50 cursor-pointer border-b border-slate-50 transition">
+                <div class="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-600">${u.name[0]}</div>
+                <div><div class="font-semibold">${u.name}</div><div class="text-xs text-slate-400 text-truncate w-32">Klik untuk chat</div></div>
+            </div>
+        `).join('');
+    }
+
+    function startChat(username, name) {
+        activeChat = username;
+        document.getElementById('chat-target-name').innerText = name;
+        document.getElementById('chat-room').classList.remove('hidden');
+        if(window.innerWidth < 768) document.getElementById('user-list').classList.add('hidden');
+        
+        clearInterval(pollInterval);
+        loadMessages();
+        pollInterval = setInterval(loadMessages, 4000); // Polling setiap 4 detik
+    }
+
+    async function loadMessages() {
+        if(!activeChat) return;
+        const resp = await fetch(`${SCRIPT_URL}?action=getMessages&u1=${currentUser.username}&u2=${activeChat}`);
+        const msgs = await resp.json();
+        const container = document.getElementById('messages');
+        container.innerHTML = msgs.map(m => {
+            const isMe = m.sender === currentUser.username;
+            const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let content = `<p class="text-sm">${m.msg}</p>`;
+            
+            if(m.file) {
+                if(m.type.includes('image')) content += `<img src="${m.file}" class="mt-2 rounded-lg max-w-full">`;
+                else if(m.type.includes('video')) content += `<video controls src="${m.file}" class="mt-2 rounded-lg max-w-full"></video>`;
+                else content += `<a href="${m.file}" download class="text-blue-500 underline">Lihat Dokumen</a>`;
+            }
+
+            return `
+                <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                    <div class="max-w-[80%] ${isMe ? 'bg-indigo-600 text-white rounded-t-2xl rounded-bl-2xl' : 'bg-white border rounded-t-2xl rounded-br-2xl'} p-3 shadow-sm">
+                        <div class="flex justify-between items-center gap-4 mb-1">
+                            <span class="text-[10px] font-bold opacity-70">${isMe ? 'Anda' : m.sender}</span>
+                            <span class="text-[10px] opacity-50">${time}</span>
+                        </div>
+                        ${content}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    async function sendMsg(fileData = "", fileType = "") {
+        const input = document.getElementById('msg-input');
+        if(!input.value && !fileData) return;
+
+        const data = {
+            action: 'sendMessage',
+            sender: currentUser.username,
+            receiver: activeChat,
+            message: input.value,
+            fileData: fileData,
+            fileType: fileType
+        };
+        
+        input.value = "";
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) });
+        loadMessages();
+    }
+
+    // Advanced Features: Camera & File
+    function triggerFile() { document.getElementById('file-input').click(); }
+    
+    function handleFile(e) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = () => sendMsg("", file.type, reader.result);
+        reader.readAsDataURL(file);
+    }
+
+    async function openCamera() {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        document.getElementById('video').srcObject = stream;
+        document.getElementById('camera-modal').classList.remove('hidden');
+    }
+
+    function capturePhoto() {
+        const v = document.getElementById('video');
+        const c = document.getElementById('canvas');
+        c.width = v.videoWidth;
+        c.height = v.videoHeight;
+        c.getContext('2d').drawImage(v, 0,0);
+        const data = c.toDataURL('image/png');
+        sendMsg("Foto dari Kamera", "image/png", data);
+        closeCamera();
+    }
+
+    function closeCamera() {
+        document.getElementById('camera-modal').classList.add('hidden');
+        document.getElementById('video').srcObject.getTracks().forEach(t => t.stop());
+    }
+
+    function showEmoji() {
+        const emojis = ["😊","😂","🥰","👍","🔥","✨","🙏","😭"];
+        const e = emojis[Math.floor(Math.random() * emojis.length)];
+        document.getElementById('msg-input').value += e;
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    function backToList() {
+        document.getElementById('chat-room').classList.add('hidden');
+        document.getElementById('user-list').classList.remove('hidden');
+    }
+
+    // Init lucide icons
+    if(currentUser) initApp();
+    lucide.createIcons();
+</script>
+</body>
+</html>
