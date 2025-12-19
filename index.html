@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chat Kita</title>
+    <title>Chat Yanoshi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -13,40 +13,39 @@
         .chat-bubble-me { border-radius: 20px 20px 4px 20px; }
         .chat-bubble-them { border-radius: 20px 20px 20px 4px; }
         .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Animasi fade-in hanya untuk pesan baru */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        .typing-dot { animation: typing 1.4s infinite; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); opacity: 0.7; } 30% { transform: translateY(-10px); opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        
         .smooth-scroll { scroll-behavior: smooth; }
-        .new-msg-badge { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .new-msg-badge { animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        @supports(padding: max(0px)) { body { padding-bottom: env(safe-area-inset-bottom); } .chat-footer { padding-bottom: max(1rem, env(safe-area-inset-bottom)); } }
+        
+        @supports(padding: max(0px)) { 
+            body { padding-bottom: env(safe-area-inset-bottom); } 
+            .chat-footer { padding-bottom: max(1rem, env(safe-area-inset-bottom)); } 
+        }
         .image-preview { max-height: 80vh; object-fit: contain; }
-        .unread-badge { animation: bounce 0.5s ease-out; }
-        @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
     </style>
 </head>
 <body class="h-screen overflow-hidden">
 
 <div id="app" class="h-full flex flex-col max-w-[1400px] mx-auto shadow-2xl">
     
-    <!-- AUTH VIEW -->
     <div id="auth-view" class="flex-1 flex items-center justify-center p-6">
-        <div class="bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-md">
+        <div class="bg-white p-10 rounded-[2rem] shadow-2xl w-full max-w-md border border-slate-100">
             <div class="flex flex-col items-center mb-8">
-                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg rotate-3 hover:rotate-6 transition-transform">
+                <div class="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg rotate-3">
                     <i data-lucide="message-square" class="text-white w-8 h-8"></i>
                 </div>
-                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">J & H</h1>
+                <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">Yanoshi Chat</h1>
             </div>
             
             <div id="login-form" class="space-y-4">
-                <input id="l-user" type="text" placeholder="Username" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none">
-                <input id="l-pass" type="password" placeholder="Password" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none">
-                <button id="login-btn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200">Login</button>
+                <input id="l-user" type="text" placeholder="Username" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none transition-all">
+                <input id="l-pass" type="password" placeholder="Password" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-indigo-500 outline-none transition-all">
+                <button id="login-btn" class="w-full bg-indigo-600 text-white p-4 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg">Login</button>
                 <button id="toggle-to-reg" class="w-full text-indigo-600 font-semibold text-sm">Belum punya akun? Daftar</button>
             </div>
 
@@ -60,9 +59,7 @@
         </div>
     </div>
 
-    <!-- MAIN VIEW -->
     <div id="main-view" class="hidden flex h-full bg-white overflow-hidden">
-        <!-- SIDEBAR -->
         <aside id="sidebar" class="w-full md:w-[350px] border-r border-slate-100 flex flex-col bg-slate-50/50">
             <div class="p-6 flex justify-between items-center bg-white border-b">
                 <div class="flex items-center gap-3">
@@ -74,11 +71,10 @@
                     <button id="logout-btn" class="p-2 hover:bg-red-50 rounded-lg text-red-500 transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
                 </div>
             </div>
-            <div class="p-4"><input id="search-user" type="text" placeholder="Cari teman..." class="w-full p-3 bg-white rounded-xl border-none shadow-sm text-sm outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500 transition"></div>
+            <div class="p-4"><input id="search-user" type="text" placeholder="Cari teman..." class="w-full p-3 bg-white rounded-xl border-none shadow-sm text-sm outline-none ring-1 ring-slate-100 focus:ring-2 focus:ring-indigo-500"></div>
             <div id="users-container" class="flex-1 overflow-y-auto px-2"></div>
         </aside>
 
-        <!-- CHAT ROOM -->
         <main id="chat-room" class="hidden flex-1 flex flex-col bg-white relative">
             <header class="p-4 border-b flex items-center justify-between glass sticky top-0 z-20">
                 <div class="flex items-center gap-3">
@@ -98,12 +94,11 @@
 
             <div id="new-msg-indicator" class="hidden absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
                 <button id="new-msg-btn" class="bg-indigo-600 text-white px-4 py-2 rounded-full shadow-lg text-sm font-semibold flex items-center gap-2 new-msg-badge hover:bg-indigo-700 transition">
-                    <i data-lucide="arrow-down" class="w-4 h-4"></i>
-                    Pesan baru
+                    <i data-lucide="arrow-down" class="w-4 h-4"></i> Pesan baru
                 </button>
             </div>
 
-            <footer class="p-4 bg-white border-t chat-footer mobile-input-fix">
+            <footer class="p-4 bg-white border-t chat-footer">
                 <div class="flex items-center gap-3 bg-slate-50 p-2 rounded-2xl ring-1 ring-slate-200">
                     <button id="file-btn" class="p-2 text-slate-400 hover:text-indigo-600 transition flex-shrink-0"><i data-lucide="plus-circle" class="w-5 h-5"></i></button>
                     <button id="cam-btn" class="p-2 text-slate-400 hover:text-indigo-600 transition flex-shrink-0"><i data-lucide="camera" class="w-5 h-5"></i></button>
@@ -118,12 +113,9 @@
     </div>
 </div>
 
-<!-- SETTINGS MODAL -->
 <div id="modal-settings" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-fade-in">
-        <h2 class="text-xl font-bold mb-6 flex items-center gap-2">
-            <i data-lucide="user-cog" class="w-5 h-5"></i> Edit Profil
-        </h2>
+        <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i data-lucide="user-cog" class="w-5 h-5"></i> Edit Profil</h2>
         <div class="space-y-4">
             <div>
                 <label class="text-xs font-bold text-slate-400 uppercase">Nama Baru</label>
@@ -134,33 +126,25 @@
                 <input id="set-pass" type="password" class="w-full mt-1 p-3 bg-slate-100 rounded-xl outline-none focus:ring-2 ring-indigo-500">
             </div>
             <div class="flex gap-3 pt-4">
-                <button id="cancel-settings-btn" class="flex-1 p-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl transition">Batal</button>
-                <button id="save-settings-btn" class="flex-1 bg-indigo-600 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition">Simpan</button>
+                <button id="cancel-settings-btn" class="flex-1 p-3 text-slate-500 font-bold hover:bg-slate-100 rounded-xl">Batal</button>
+                <button id="save-settings-btn" class="flex-1 bg-indigo-600 text-white rounded-xl font-bold shadow-lg">Simpan</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- CAMERA VIEW -->
 <div id="cam-view" class="fixed inset-0 bg-black z-[200] hidden flex flex-col items-center justify-center">
     <video id="video" class="w-full h-3/4 object-cover" autoplay playsinline></video>
     <div class="h-1/4 flex items-center justify-center gap-12">
-        <button id="close-cam-btn" class="text-white p-4 hover:scale-110 transition">
-            <i data-lucide="x-circle" class="w-8 h-8"></i>
-        </button>
-        <button id="snap-btn" class="w-20 h-20 bg-white rounded-full border-8 border-slate-500 shadow-white/20 shadow-2xl hover:scale-105 transition"></button>
-        <button id="switch-cam-btn" class="text-white p-4 hover:scale-110 transition">
-            <i data-lucide="refresh-cw" class="w-8 h-8"></i>
-        </button>
+        <button id="close-cam-btn" class="text-white p-4"><i data-lucide="x-circle" class="w-8 h-8"></i></button>
+        <button id="snap-btn" class="w-20 h-20 bg-white rounded-full border-8 border-slate-500 shadow-white/20 shadow-2xl"></button>
+        <button id="switch-cam-btn" class="text-white p-4"><i data-lucide="refresh-cw" class="w-8 h-8"></i></button>
     </div>
     <canvas id="canvas" class="hidden"></canvas>
 </div>
 
-<!-- IMAGE PREVIEW MODAL -->
 <div id="image-preview-modal" class="fixed inset-0 bg-black/95 z-[150] hidden flex items-center justify-center p-4">
-    <button id="close-preview-btn" class="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-lg transition">
-        <i data-lucide="x" class="w-6 h-6"></i>
-    </button>
+    <button id="close-preview-btn" class="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-lg transition"><i data-lucide="x" class="w-6 h-6"></i></button>
     <img id="preview-image" src="" class="image-preview rounded-lg shadow-2xl">
 </div>
 
@@ -173,7 +157,6 @@
     let lastMessageCount = 0;
     let isUserScrolling = false;
     let currentCamera = 'user';
-    let unreadMessages = {};
 
     // ============ AUTH ============
     function toggleAuth(reg) {
@@ -184,73 +167,29 @@
     async function login() {
         const u = document.getElementById('l-user').value.trim();
         const p = document.getElementById('l-pass').value;
+        if(!u || !p) return alert("Isi username & password!");
         
-        if(!u || !p) { alert("Username dan password harus diisi!"); return; }
-        
-        const loginBtn = document.getElementById('login-btn');
-        const originalText = loginBtn.innerHTML;
-        loginBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin inline"></i> Loading...';
-        loginBtn.disabled = true;
-        lucide.createIcons();
-        
+        const btn = document.getElementById('login-btn');
+        btn.disabled = true;
+        btn.innerText = "Loading...";
+
         try {
-            console.log("🔄 Login:", u);
             const res = await fetch(GAS_URL, { 
-                method: 'POST',
+                method: 'POST', 
                 headers: { 'Content-Type': 'text/plain' },
                 body: JSON.stringify({action:'login', username:u, password:p}) 
             });
             const text = await res.text();
-            console.log("📦 Response:", text);
-            
             if(text !== "Fail" && text !== "") {
                 me = JSON.parse(text);
                 localStorage.setItem('chat_user', text);
                 startApp();
-            } else {
-                alert("Username/Password salah!");
-            }
-        } catch(e) {
-            console.error("❌ Error:", e);
-            alert("Koneksi error! " + e.message);
-        } finally {
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-            lucide.createIcons();
-        }
+            } else alert("Login Gagal!");
+        } catch(e) { alert("Error: " + e.message); }
+        finally { btn.disabled = false; btn.innerText = "Login"; }
     }
 
-    async function register() {
-        const name = document.getElementById('r-name').value.trim();
-        const username = document.getElementById('r-user').value.trim();
-        const password = document.getElementById('r-pass').value;
-        
-        if(!name || !username || !password) { alert("Semua field harus diisi!"); return; }
-        
-        const regBtn = document.getElementById('register-btn');
-        const originalText = regBtn.innerHTML;
-        regBtn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin inline"></i> Loading...';
-        regBtn.disabled = true;
-        lucide.createIcons();
-        
-        try {
-            await fetch(GAS_URL, { 
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify({action:'register', name, username, password}) 
-            });
-            alert("Pendaftaran Berhasil!");
-            toggleAuth(false);
-        } catch(e) {
-            alert("Pendaftaran gagal! " + e.message);
-        } finally {
-            regBtn.innerHTML = originalText;
-            regBtn.disabled = false;
-            lucide.createIcons();
-        }
-    }
-
-    // ============ MAIN APP ============
+    // ============ CORE APP ============
     function startApp() {
         if(!me) return;
         document.getElementById('auth-view').classList.add('hidden');
@@ -266,61 +205,24 @@
             const res = await fetch(GAS_URL + "?action=getUsers");
             const users = await res.json();
             const container = document.getElementById('users-container');
-            
-            container.innerHTML = users.filter(u => u.username !== me.username).map(u => {
-                const unreadCount = unreadMessages[u.username] || 0;
-                const unreadBadge = unreadCount > 0 ? 
-                    `<div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold unread-badge">${unreadCount}</div>` : '';
-                
-                return `
-                    <div class="user-item p-4 flex items-center gap-4 hover:bg-white hover:shadow-md cursor-pointer rounded-2xl transition-all m-2 relative group" data-username="${u.username}" data-name="${u.name}">
-                        <div class="relative">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white flex items-center justify-center font-bold shadow-md group-hover:scale-110 transition">${u.name[0]}</div>
-                            ${unreadBadge}
-                        </div>
-                        <div class="flex-1 border-b border-slate-100 pb-2">
-                            <h4 class="font-bold text-slate-800">${u.name}</h4>
-                            <p class="text-xs text-slate-400">Klik untuk mulai chat</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            document.querySelectorAll('.user-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    openChat(item.dataset.username, item.dataset.name);
-                });
-            });
-            
-            lucide.createIcons();
-        } catch(e) {
-            console.error("Error loading users:", e);
-        }
-    }
-
-    function filterUsers() {
-        const query = document.getElementById('search-user').value.toLowerCase();
-        document.querySelectorAll('.user-item').forEach(item => {
-            const name = item.textContent.toLowerCase();
-            item.style.display = name.includes(query) ? 'flex' : 'none';
-        });
+            container.innerHTML = users.filter(u => u.username !== me.username).map(u => `
+                <div class="user-item p-4 flex items-center gap-4 hover:bg-white cursor-pointer rounded-2xl transition-all m-2 border border-transparent hover:border-slate-100" data-username="${u.username}" data-name="${u.name}">
+                    <div class="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold">${u.name[0]}</div>
+                    <div><h4 class="font-bold text-slate-800">${u.name}</h4><p class="text-xs text-slate-400">Klik untuk chat</p></div>
+                </div>
+            `).join('');
+            document.querySelectorAll('.user-item').forEach(el => el.onclick = () => openChat(el.dataset.username, el.dataset.name));
+        } catch(e) { console.error(e); }
     }
 
     function openChat(username, name) {
         partner = username;
-        lastMessageCount = 0;
-        isUserScrolling = false;
-        
+        lastMessageCount = 0; // Reset agar render ulang saat pindah room
+        document.getElementById('messages').innerHTML = ""; // Bersihkan layar
         document.getElementById('chat-target-name').innerText = name;
         document.getElementById('target-avatar').innerText = name[0];
         document.getElementById('chat-room').classList.remove('hidden');
-        
-        if(window.innerWidth < 768) {
-            document.getElementById('sidebar').classList.add('hidden');
-        }
-        
-        unreadMessages[username] = 0;
-        loadUsers();
+        if(window.innerWidth < 768) document.getElementById('sidebar').classList.add('hidden');
         
         clearInterval(poll);
         fetchMsgs(true);
@@ -328,330 +230,132 @@
         markRead();
     }
 
+    // ============ PERBAIKAN UTAMA: RENDER LOGIC ============
     async function fetchMsgs(forceScroll = false) {
         if(!partner) return;
-        
         try {
             const res = await fetch(`${GAS_URL}?action=getMessages&u1=${me.username}&u2=${partner}`);
             const data = await res.json();
             const box = document.getElementById('messages');
             
-            const hasNewMessages = data.length > lastMessageCount;
-            lastMessageCount = data.length;
-            
-            const scrollPos = box.scrollTop;
-            const scrollHeight = box.scrollHeight;
-            const clientHeight = box.clientHeight;
-            const isAtBottom = scrollHeight - scrollPos - clientHeight < 100;
-            
-            box.innerHTML = data.map(m => {
-                const isMe = m.sender === me.username;
-                const time = new Date(m.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                const checkmarks = isMe ? (m.isRead ? 
-                    '<i data-lucide="check-check" class="w-3 h-3 text-blue-400"></i>' : 
-                    '<i data-lucide="check" class="w-3 h-3 text-slate-400"></i>') : '';
+            // JIKA tidak ada pesan baru, jangan lakukan apa-apa (Mencegah Flicker)
+            if(data.length === lastMessageCount && !forceScroll) return;
 
-                let content = `<p class="text-sm leading-relaxed break-words">${escapeHtml(m.msg)}</p>`;
-                
-                if(m.file) {
-                    if(m.type && m.type.includes('image')) {
-                        content += `<img src="${m.file}" class="img-preview mt-2 rounded-xl max-h-60 w-auto shadow-sm cursor-pointer hover:opacity-90 transition" data-src="${m.file}">`;
-                    } else if(m.type && m.type.includes('video')) {
-                        content += `<video controls src="${m.file}" class="mt-2 rounded-xl max-h-60"></video>`;
-                    } else {
-                        content += `<a href="${m.file}" target="_blank" class="mt-2 block p-2 bg-black/5 rounded-lg text-xs font-bold flex items-center gap-2 hover:bg-black/10 transition"><i data-lucide="file"></i> DOWNLOAD FILE</a>`;
-                    }
-                }
+            const isAtBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 100;
 
-                return `
-                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in">
-                        <div class="${isMe ? 'bg-indigo-600 text-white chat-bubble-me' : 'bg-white text-slate-800 chat-bubble-them shadow-sm border border-slate-100'} p-4 max-w-[75%] md:max-w-[60%] relative">
-                            <div class="flex justify-between items-center gap-4 mb-1 opacity-60 text-[9px] font-bold uppercase tracking-tighter">
-                                <span>${isMe ? 'Anda' : m.sender}</span>
-                                <span class="flex items-center gap-1">${time} ${checkmarks}</span>
-                            </div>
-                            ${content}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            lucide.createIcons();
-            
-            document.querySelectorAll('.img-preview').forEach(img => {
-                img.addEventListener('click', () => openImagePreview(img.dataset.src));
-            });
-            
-            if(forceScroll || isAtBottom || !isUserScrolling) {
-                scrollToBottom(false);
-            } else if(hasNewMessages) {
-                document.getElementById('new-msg-indicator').classList.remove('hidden');
+            if (lastMessageCount === 0 || forceScroll) {
+                // Render awal semua pesan
+                box.innerHTML = data.map(m => renderBubble(m)).join('');
+            } else {
+                // Append hanya pesan baru
+                const newOnes = data.slice(lastMessageCount);
+                newOnes.forEach(m => {
+                    box.insertAdjacentHTML('beforeend', renderBubble(m));
+                });
             }
-            
-        } catch(e) {
-            console.error("Error fetching messages:", e);
-        }
+
+            lastMessageCount = data.length;
+            lucide.createIcons();
+            initImgPreview();
+
+            if(forceScroll || isAtBottom) scrollToBottom(forceScroll ? false : true);
+            else if(data.length > lastMessageCount) document.getElementById('new-msg-indicator').classList.remove('hidden');
+
+        } catch(e) { console.error("Fetch Error:", e); }
     }
 
+    function renderBubble(m) {
+        const isMe = m.sender === me.username;
+        const time = new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        const check = isMe ? (m.isRead ? '<i data-lucide="check-check" class="w-3 h-3 text-blue-400"></i>' : '<i data-lucide="check" class="w-3 h-3 text-slate-400"></i>') : '';
+        
+        let content = `<p class="text-sm leading-relaxed break-words">${escapeHtml(m.msg)}</p>`;
+        if(m.file) {
+            if(m.type?.includes('image')) content += `<img src="${m.file}" class="img-preview mt-2 rounded-xl max-h-60 shadow-sm cursor-pointer hover:opacity-90">`;
+            else if(m.type?.includes('video')) content += `<video controls src="${m.file}" class="mt-2 rounded-xl max-h-60"></video>`;
+            else content += `<a href="${m.file}" target="_blank" class="mt-2 block p-2 bg-black/5 rounded-lg text-xs font-bold flex items-center gap-2"><i data-lucide="file"></i> DOWNLOAD FILE</a>`;
+        }
+
+        return `
+            <div class="flex ${isMe ? 'justify-end' : 'justify-start'} animate-fade-in">
+                <div class="${isMe ? 'bg-indigo-600 text-white chat-bubble-me' : 'bg-white text-slate-800 chat-bubble-them shadow-sm border border-slate-100'} p-4 max-w-[80%] md:max-w-[60%]">
+                    <div class="flex justify-between items-center gap-4 mb-1 opacity-60 text-[9px] font-bold uppercase">
+                        <span>${isMe ? 'Anda' : m.sender}</span>
+                        <span class="flex items-center gap-1">${time} ${check}</span>
+                    </div>
+                    ${content}
+                </div>
+            </div>`;
+    }
+
+    // ============ UTILS ============
     function scrollToBottom(smooth = true) {
         const box = document.getElementById('messages');
-        if(smooth) {
-            box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
-        } else {
-            box.scrollTop = box.scrollHeight;
-        }
+        box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
         document.getElementById('new-msg-indicator').classList.add('hidden');
     }
 
     async function send(file = "", type = "") {
         const inp = document.getElementById('msg-in');
         const msg = inp.value.trim();
-        
         if(!msg && !file) return;
-
-        const body = {
-            action: 'sendMessage',
-            sender: me.username,
-            receiver: partner,
-            message: msg,
-            fileData: file,
-            fileType: type
-        };
-        
         inp.value = "";
-        
         try {
-            await fetch(GAS_URL, { method: 'POST', body: JSON.stringify(body) });
+            await fetch(GAS_URL, { method: 'POST', body: JSON.stringify({action:'sendMessage', sender:me.username, receiver:partner, message:msg, fileData:file, fileType:type}) });
             fetchMsgs(true);
-            isUserScrolling = false;
-        } catch(e) {
-            alert("Gagal mengirim pesan!");
-        }
+        } catch(e) { alert("Gagal kirim!"); }
     }
 
-    async function markRead() {
-        if(!partner) return;
-        try {
-            await fetch(GAS_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({action:'markRead', me: me.username, from: partner}) 
-            });
-        } catch(e) {
-            console.error("Error marking as read:", e);
-        }
-    }
-
-    // ============ SETTINGS ============
-    function openSettings() {
-        document.getElementById('set-name').value = me.name;
-        document.getElementById('set-pass').value = '';
-        document.getElementById('modal-settings').classList.remove('hidden');
-        lucide.createIcons();
-    }
-    
-    function closeSettings() { 
-        document.getElementById('modal-settings').classList.add('hidden'); 
-    }
-    
-    async function saveSettings() {
-        const newN = document.getElementById('set-name').value.trim();
-        const newP = document.getElementById('set-pass').value;
-        
-        if(!newN) { alert("Nama tidak boleh kosong!"); return; }
-        
-        try {
-            const res = await fetch(GAS_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({
-                    action: 'updateProfile',
-                    username: me.username, 
-                    newName: newN, 
-                    newPassword: newP
-                })
-            });
-            const updated = await res.json();
-            me = updated;
-            localStorage.setItem('chat_user', JSON.stringify(me));
-            alert("Profil diperbarui!");
-            closeSettings();
-            location.reload();
-        } catch(e) {
-            alert("Gagal memperbarui profil!");
-        }
-    }
-
-    // ============ CAMERA ============
-    async function openCam() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: currentCamera }
-            });
-            document.getElementById('video').srcObject = stream;
-            document.getElementById('cam-view').classList.remove('hidden');
-            lucide.createIcons();
-        } catch(e) {
-            alert("Tidak dapat mengakses kamera!");
-        }
-    }
-    
-    function closeCam() {
-        const video = document.getElementById('video');
-        if(video.srcObject) {
-            video.srcObject.getTracks().forEach(t => t.stop());
-        }
-        document.getElementById('cam-view').classList.add('hidden');
-    }
-    
-    function switchCamera() {
-        currentCamera = currentCamera === 'user' ? 'environment' : 'user';
-        closeCam();
-        openCam();
-    }
-    
-    function takeSnap() {
-        const v = document.getElementById('video');
-        const c = document.getElementById('canvas');
-        c.width = v.videoWidth;
-        c.height = v.videoHeight;
-        c.getContext('2d').drawImage(v, 0, 0);
-        send(c.toDataURL('image/jpeg'), 'image/jpeg');
-        closeCam();
-    }
-    
-    function uploadFile(e) {
-        const file = e.target.files[0];
-        if(!file) return;
-        if(file.size > 10 * 1024 * 1024) {
-            alert("File terlalu besar! Maksimal 10MB");
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = () => send(reader.result, file.type);
-        reader.readAsDataURL(file);
-    }
-
-    // ============ IMAGE PREVIEW ============
-    function openImagePreview(src) {
-        document.getElementById('preview-image').src = src;
-        document.getElementById('image-preview-modal').classList.remove('hidden');
-        lucide.createIcons();
-    }
-    
-    function closeImagePreview() {
-        document.getElementById('image-preview-modal').classList.add('hidden');
-    }
-
-    // ============ UTILITY ============
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function logout() { 
-        localStorage.clear(); 
-        location.reload(); 
-    }
-    
-    function closeChat() {
-        document.getElementById('chat-room').classList.add('hidden');
-        document.getElementById('sidebar').classList.remove('hidden');
-        partner = null;
-        clearInterval(poll);
-        isUserScrolling = false;
-        lastMessageCount = 0;
-    }
+    function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+    function initImgPreview() { document.querySelectorAll('.img-preview').forEach(img => img.onclick = () => { document.getElementById('preview-image').src = img.src; document.getElementById('image-preview-modal').classList.remove('hidden'); }); }
+    function closeChat() { document.getElementById('chat-room').classList.add('hidden'); document.getElementById('sidebar').classList.remove('hidden'); partner = null; clearInterval(poll); }
+    function logout() { localStorage.clear(); location.reload(); }
 
     // ============ EVENT LISTENERS ============
     document.addEventListener('DOMContentLoaded', () => {
-        // Auth
-        const loginBtn = document.getElementById('login-btn');
-        const registerBtn = document.getElementById('register-btn');
-        const toggleToReg = document.getElementById('toggle-to-reg');
-        const toggleToLogin = document.getElementById('toggle-to-login');
+        document.getElementById('login-btn').onclick = login;
+        document.getElementById('toggle-to-reg').onclick = () => toggleAuth(true);
+        document.getElementById('toggle-to-login').onclick = () => toggleAuth(false);
+        document.getElementById('logout-btn').onclick = logout;
+        document.getElementById('close-chat-btn').onclick = closeChat;
+        document.getElementById('send-btn').onclick = () => send();
+        document.getElementById('msg-in').onkeypress = (e) => { if(e.key === 'Enter') send(); };
+        document.getElementById('file-btn').onclick = () => document.getElementById('file-in').click();
+        document.getElementById('file-in').onchange = (e) => {
+            const f = e.target.files[0];
+            const r = new FileReader();
+            r.onload = () => send(r.result, f.type);
+            r.readAsDataURL(f);
+        };
+        document.getElementById('cam-btn').onclick = async () => {
+            const s = await navigator.mediaDevices.getUserMedia({video: {facingMode:currentCamera}});
+            document.getElementById('video').srcObject = s;
+            document.getElementById('cam-view').classList.remove('hidden');
+        };
+        document.getElementById('snap-btn').onclick = () => {
+            const v = document.getElementById('video');
+            const c = document.getElementById('canvas');
+            c.width = v.videoWidth; c.height = v.videoHeight;
+            c.getContext('2d').drawImage(v, 0, 0);
+            send(c.toDataURL('image/jpeg'), 'image/jpeg');
+            document.getElementById('cam-view').classList.add('hidden');
+            v.srcObject.getTracks().forEach(t => t.stop());
+        };
+        document.getElementById('close-cam-btn').onclick = () => {
+            document.getElementById('cam-view').classList.add('hidden');
+            document.getElementById('video').srcObject.getTracks().forEach(t => t.stop());
+        };
+        document.getElementById('close-preview-btn').onclick = () => document.getElementById('image-preview-modal').classList.add('hidden');
+        document.getElementById('scroll-to-bottom-btn').onclick = () => scrollToBottom(true);
+        document.getElementById('new-msg-btn').onclick = () => scrollToBottom(true);
         
-        if(loginBtn) loginBtn.addEventListener('click', login);
-        if(registerBtn) registerBtn.addEventListener('click', register);
-        if(toggleToReg) toggleToReg.addEventListener('click', () => toggleAuth(true));
-        if(toggleToLogin) toggleToLogin.addEventListener('click', () => toggleAuth(false));
-        
-        const lUser = document.getElementById('l-user');
-        const lPass = document.getElementById('l-pass');
-        if(lUser) lUser.addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
-        if(lPass) lPass.addEventListener('keypress', (e) => { if(e.key === 'Enter') login(); });
-        
-        // Main app
-        const settingsBtn = document.getElementById('settings-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const closeChatBtn = document.getElementById('close-chat-btn');
-        const sendBtn = document.getElementById('send-btn');
-        const msgIn = document.getElementById('msg-in');
-        const fileBtn = document.getElementById('file-btn');
-        const fileIn = document.getElementById('file-in');
-        const camBtn = document.getElementById('cam-btn');
-        
-        if(settingsBtn) settingsBtn.addEventListener('click', openSettings);
-        if(logoutBtn) logoutBtn.addEventListener('click', logout);
-        if(closeChatBtn) closeChatBtn.addEventListener('click', closeChat);
-        if(sendBtn) sendBtn.addEventListener('click', () => send());
-        if(msgIn) msgIn.addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
-        if(fileBtn) fileBtn.addEventListener('click', () => fileIn.click());
-        if(fileIn) fileIn.addEventListener('change', uploadFile);
-        if(camBtn) camBtn.addEventListener('click', openCam);
-        
-        // Settings modal
-        const cancelSettingsBtn = document.getElementById('cancel-settings-btn');
-        const saveSettingsBtn = document.getElementById('save-settings-btn');
-        if(cancelSettingsBtn) cancelSettingsBtn.addEventListener('click', closeSettings);
-        if(saveSettingsBtn) saveSettingsBtn.addEventListener('click', saveSettings);
-        
-        // Camera
-        const closeCamBtn = document.getElementById('close-cam-btn');
-        const snapBtn = document.getElementById('snap-btn');
-        const switchCamBtn = document.getElementById('switch-cam-btn');
-        if(closeCamBtn) closeCamBtn.addEventListener('click', closeCam);
-        if(snapBtn) snapBtn.addEventListener('click', takeSnap);
-        if(switchCamBtn) switchCamBtn.addEventListener('click', switchCamera);
-        
-        // Image preview
-        const closePreviewBtn = document.getElementById('close-preview-btn');
-        if(closePreviewBtn) closePreviewBtn.addEventListener('click', closeImagePreview);
-        
-        // Scroll buttons
-        const scrollToBottomBtn = document.getElementById('scroll-to-bottom-btn');
-        const newMsgBtn = document.getElementById('new-msg-btn');
-        if(scrollToBottomBtn) scrollToBottomBtn.addEventListener('click', () => scrollToBottom(true));
-        if(newMsgBtn) newMsgBtn.addEventListener('click', () => scrollToBottom(true));
-        
-        // Search filter
-        const searchUser = document.getElementById('search-user');
-        if(searchUser) searchUser.addEventListener('keyup', filterUsers);
-        
-        // Message scroll detection
-        setTimeout(() => {
-            const msgBox = document.getElementById('messages');
-            if(msgBox) {
-                msgBox.addEventListener('scroll', () => {
-                    const scrollPos = msgBox.scrollTop;
-                    const scrollHeight = msgBox.scrollHeight;
-                    const clientHeight = msgBox.clientHeight;
-                    const isAtBottom = scrollHeight - scrollPos - clientHeight < 100;
-                    
-                    isUserScrolling = !isAtBottom;
-                    
-                    const scrollBtn = document.getElementById('scroll-to-bottom-btn');
-                    if(isUserScrolling) {
-                        scrollBtn.classList.remove('hidden');
-                    } else {
-                        scrollBtn.classList.add('hidden');
-                        document.getElementById('new-msg-indicator').classList.add('hidden');
-                    }
-                });
-            }
-        }, 500);
+        // Scroll detection
+        document.getElementById('messages').onscroll = (e) => {
+            const isAtBottom = e.target.scrollHeight - e.target.scrollTop - e.target.clientHeight < 100;
+            document.getElementById('scroll-to-bottom-btn').classList.toggle('hidden', isAtBottom);
+        };
     });
 
-    // ============ INIT ============
     if(me) startApp();
     lucide.createIcons();
 </script>
